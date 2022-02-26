@@ -6,7 +6,7 @@ const state = {
 
 const actions = {
     createMap({commit}) {
-        mapboxgl.accessToken = 'pk.eyJ1IjoiamxvY29zYW4iLCJhIjoiY2wwMTY1MTJtMHI0azNqdDFsdWZxbHd5eiJ9.8qyEz4gXWvJ60DoNWV40gw';
+        mapboxgl.accessToken = process.env.VUE_APP_ACCESS_TOKEN;
         let map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/dark-v10',
@@ -14,7 +14,7 @@ const actions = {
                 4.915277,
                 52.361053
             ],
-            zoom: 10
+            zoom: 12
         });
 
         commit('setMap', map)
@@ -23,13 +23,16 @@ const actions = {
         await dispatch('createMap')
 
         state.map.on('load', () => {
+            state.map.addControl(new mapboxgl.NavigationControl())
+
             state.map.addSource('birds', {
                 type: 'geojson',
                 data: rootGetters["birds/allBirds"]
             });
+
             state.map.addLayer(
                 {
-                    id: 'bird-nestings',
+                    id: 'breeding-grounds',
                     type: 'circle',
                     source: 'birds',
                     paint: {
@@ -37,17 +40,18 @@ const actions = {
                             'match',
                             ['get', 'Vogel'],
                             'Gierzwaluw',
-                            '#a500ff',
+                            '#43e2ce',
                             'Boerenzwaluw',
-                            '#0057ff',
+                            '#0b379d',
                             'Huiszwaluw',
-                            '#ffe700',
+                            '#ff7b00',
                             'Huismus',
-                            '#ff0000',
+                            '#8f2f67',
                             'Spreeuw',
-                            '#00e30c',
+                            '#008f06',
                             '#ffffff'
-                        ]
+                        ],
+                        'circle-opacity': 0.8
                     }
                 },
             );
