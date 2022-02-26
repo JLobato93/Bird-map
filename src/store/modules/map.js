@@ -1,7 +1,8 @@
 import mapboxgl from "mapbox-gl";
 
 const state = {
-    map: {}
+    map: {},
+    mapLoaded: false
 }
 
 const actions = {
@@ -27,7 +28,7 @@ const actions = {
 
             state.map.addSource('birds', {
                 type: 'geojson',
-                data: rootGetters["birds/allBirds"]
+                data: rootGetters["birds/birdsGeoSet"]
             });
 
             state.map.addLayer(
@@ -60,7 +61,10 @@ const actions = {
 }
 
 const mutations = {
-    setMap: (state, map) => (state.map = map)
+    setMap: (state, map) => {
+        state.map = map
+        state.mapLoaded = true
+    }
 }
 
 export default {

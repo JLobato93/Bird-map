@@ -1,40 +1,23 @@
 <template>
   <span class="count-box">
-    <span v-for="bird in $store.state.birds.checkedBirds" :key="bird">
-      <span v-if="bird.toLowerCase() === 'gierzwaluw'">
-        <b>{{ bird }}:</b> {{ gierzwaluwenCount }}
-      </span>
-        <span v-if="bird.toLowerCase() === 'boerenzwaluw'">
-        <b>{{ bird }}:</b> {{ boerenzwaluwenCount }}
-      </span>
-        <span v-if="bird.toLowerCase() === 'huiszwaluw'">
-        <b>{{ bird }}:</b> {{ huiszwaluwenCount }}
-      </span>
-        <span v-if="bird.toLowerCase() === 'huismus'">
-        <b>{{ bird }}:</b> {{ huismussenCount }}
-      </span>
-        <span v-if="bird.toLowerCase() === 'spreeuw'">
-        <b>{{ bird }}:</b> {{ spreeuwenCount }}
-      </span>
+    <span v-for="bird in birds" :key="bird.singularName">
+      <span v-if="bird.checked" class="bird-counts"><b>{{ bird.pluralName }}:</b> {{ bird.count }}</span>
       </span>
     <span><b>Total birds:</b> {{ totalBirdsCount }}</span>
   </span>
 </template>
 
 <script>
-import {mapGetters} from "vuex";
+import {mapGetters,mapState} from "vuex";
 
 export default {
   name: "BirdCount",
   computed: {
     ...mapGetters('birds', [
-      'huismussenCount',
-      'boerenzwaluwenCount',
-      'gierzwaluwenCount',
-      'huiszwaluwenCount',
-      'spreeuwenCount',
+      'allBirds',
       'totalBirdsCount'
-    ])
+    ]),
+    ...mapState('birds', ['birds'])
   },
 }
 </script>
@@ -44,7 +27,7 @@ export default {
   background: rgba(255, 255, 255, 0.7);
   z-index: 1;
   position: absolute;
-  width: 800px;
+  width: 850px;
   height: 25px;
   bottom: 10px;
   right: 25%;
@@ -52,5 +35,8 @@ export default {
   padding: 10px;
   color: black;
   font-size: 16px;
+}
+.bird-counts{
+  margin: 5px;
 }
 </style>

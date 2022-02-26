@@ -1,16 +1,18 @@
 import axios from "axios";
 
 const state = {
-    allBirds: [],
+    birds: [
+        initBirds('Gierzwaluw', 'Gierzwaluwen', '#43e2ce'),
+        initBirds('Boerenzwaluw', 'Boerzwaluwen', '#0b379d'),
+        initBirds('Huiszwaluw', 'Huiszwaluwen', '#ff7b00'),
+        initBirds('Huismus', 'Huismussen', '#8f2f67'),
+        initBirds('Spreeuw', 'Spreeuwen', '#008f06'),
+    ],
+    birdsGeoSet: [],
     filteredBirds: [],
-    gierzwaluw: 0,
-    boerenzwaluw: 0,
-    huiszwaluw: 0,
-    huismus: 0,
-    spreeuw: 0,
     totalBirds: 0,
     checkedBirds: [
-        'Gierzwaluw',
+
         'Boerenzwaluw',
         'Huiszwaluw',
         'Huismus',
@@ -19,18 +21,15 @@ const state = {
 }
 
 const getters = {
-    allBirds: state => state.allBirds,
-    gierzwaluwenCount: state => state.gierzwaluw,
-    boerenzwaluwenCount: state => state.boerenzwaluw,
-    huiszwaluwenCount: state => state.huiszwaluw,
-    huismussenCount: state => state.huismus,
-    spreeuwenCount: state => state.spreeuw,
-    totalBirdsCount: state => state.totalBirds
+    birdsGeoSet: state => state.birdsGeoSet,
+    allBirds: state => state.birds,
+    totalBirdsCount: state => state.totalBirds,
 }
 
 const actions = {
     async fetchBirds({commit}) {
         const {data} = await axios.get('https://maps.amsterdam.nl/open_geodata/geojson_lnglat.php?KAARTLAAG=VOGELS&THEMA=vogels')
+
         // Filter out the Vogels with value 'overig'
         data.features = data.features.filter(bird => {
             if (bird.properties.Vogel.toLowerCase() !== 'overig') {
@@ -38,44 +37,55 @@ const actions = {
             }
         })
         commit('setBirds', data)
-        commit('setTotalBirdsCount', data.features.length)
-        commit('setGierzwaluwenCount', count(data.features, 'gierzwaluw'))
-        commit('setBoerenzwaluwenCount', count(data.features, 'boerenzwaluw'))
-        commit('setHuiszwaluwenCount', count(data.features, 'huiszwaluw'))
-        commit('setHuismussenCount', count(data.features, 'huismus'))
-        commit('setSpreeuwenCount', count(data.features, 'spreeuw'))
+        commit('setBirdsCount', countBirds())
     },
-    calculateTotalBirds({commit}, selectedBirds) {
-        let total = 0;
-        selectedBirds.forEach(bird => {
-            total += state[bird.toLowerCase()]
-        })
-        commit('setTotalBirdsCount', total)
-    },
-    filterBirds({dispatch}) {
-        state.filteredBirds = {...state.allBirds}
-        state.filteredBirds.features = state.allBirds.features.filter(bird => {
-            return state.checkedBirds.includes(bird.properties.Vogel)
-        })
-        dispatch('calculateTotalBirds', state.checkedBirds)
-    }
+    calculateTotalBirds({commit}) {
+        let total = 0
 
+        state.birds.forEach(bird => {
+            if (bird.checked) total += bird.count
+        })
+
+        commit('setTotalBirds', total)
+    }
 }
 
 const mutations = {
-    setBirds: (state, birds) => (state.allBirds = birds),
-    setGierzwaluwenCount: (state, total) => state.gierzwaluw = total,
-    setBoerenzwaluwenCount: (state, total) => state.boerenzwaluw = total,
-    setHuiszwaluwenCount: (state, total) => state.huiszwaluw = total,
-    setHuismussenCount: (state, total) => state.huismus = total,
-    setSpreeuwenCount: (state, total) => state.spreeuw = total,
-    setTotalBirdsCount: (state, total) => state.totalBirds = total,
+    setBirds: (state, birds) => (state.birdsGeoSet = birds),
+    setBirdsCount: (state, birdTotals) => {
+        state.birds.forEach(bird => {
+            bird.count = birdTotals[bird.singularName]
+        })
+        state.totalBirds = birdTotals.totalBirds
+    },
+    setTotalBirds: (state, count) => state.totalBirds = count
 }
-let count = (birds, type) => {
-    return birds.filter(bird => {
-        return bird.properties.Vogel.toLowerCase() === type
+
+let countBirds = () => {
+    let birdTotals = {}
+
+    state.birds.forEach(bird => birdTotals[bird.singularName] = count(bird.singularName))
+    birdTotals.totalBirds = state.birdsGeoSet.features.length
+
+    return birdTotals
+}
+
+function count(type) {
+    return state.birdsGeoSet.features.filter(bird => {
+        return bird.properties.Vogel === type
     }).length
 }
+
+function initBirds(singularName, pluralName, color) {
+    return {
+        singularName,
+        pluralName,
+        color,
+        count: 0,
+        checked: true
+    }
+}
+
 export default {
     namespaced: true,
     state,

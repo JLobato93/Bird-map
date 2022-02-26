@@ -1,50 +1,52 @@
 <template>
   <div class="legend">
-    <div>
-      <div id="gierzwaluw-color" class="circle"></div>
-      <input type="checkbox" value="Gierzwaluw" v-model="$store.state.birds.checkedBirds">
-      <label>Gierzwaluwen</label>
-    </div>
-    <div>
-      <div id="boerzwaluw-color" class="circle"></div>
-
-      <input type="checkbox" value="Boerenzwaluw" v-model="$store.state.birds.checkedBirds">
-      <label>Boerenzwaluwen</label>
-    </div>
-    <div>
-      <div id="huiszwaluw-color" class="circle"></div>
-
-      <input type="checkbox" value="Huiszwaluw" v-model="$store.state.birds.checkedBirds">
-      <label>Huiszwaluwen</label>
-    </div>
-    <div>
-      <div id="huismus-color" class="circle"></div>
-
-      <input type="checkbox" value="Huismus" v-model="$store.state.birds.checkedBirds">
-      <label>Huismussen</label>
-    </div>
-    <div>
-      <div id="spreeuw-color" class="circle"></div>
-
-      <input type="checkbox" value="Spreeuw" v-model="$store.state.birds.checkedBirds">
-      <label>Spreeuwen</label>
+    <div v-for="bird in birds" :key="bird.singularName">
+      <div class="circle" :style="{backgroundColor:bird.color}"></div>
+      <input type="checkbox" :value="bird.checked" v-model="bird.checked">
+      <label>{{ bird.pluralName }}</label>
     </div>
   </div>
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 export default {
   name: "Legend",
-  watch: {
-    '$store.state.birds.checkedBirds'() {
-      this.filterBirds()
-      return this.$store.state.map.map.getSource('birds').setData(this.$store.state.birds.filteredBirds)
-    }
+  computed: {
+    ...mapState('birds', ['birds', 'birdsGeoSet', 'checkedBirds']),
+    ...mapState('map', ['map', 'mapLoaded'])
   },
   methods: {
-    ...mapActions('birds', ['filterBirds'])
+    ...mapActions('birds', ['calculateTotalBirds']),
+    getCheckedBirds() {
+      let checkedBirds = []
+      this.birds.forEach(bird => {
+        if (bird.checked) checkedBirds.push(bird.singularName)
+      })
+      return checkedBirds
+    },
+    filteredBirds() {
+      let filteredBirds = {...this.birdsGeoSet}
+      filteredBirds.features = this.birdsGeoSet.features.filter(bird => {
+        return this.getCheckedBirds().includes(bird.properties.Vogel)
+      })
+      return filteredBirds
+    }
+  },
+  created() {
+    this.$store.watch(
+        () => {
+          return this.birds
+        },
+        () => {
+          if (this.mapLoaded) {
+            this.calculateTotalBirds()
+            return this.map.getSource('birds').setData(this.filteredBirds())
+          }
+        },
+        {deep: true}
+    )
   }
 }
 </script>
@@ -67,26 +69,8 @@ export default {
 input {
   margin: 0 5px;
 }
-#gierzwaluw-color{
-background-color: #43e2ce;
-}
 
-#boerzwaluw-color{
-  background: #0b379d;
-}
-
-#huiszwaluw-color{
-  background-color: #ff7b00;
-}
-
-#huismus-color{
-  background-color: #8f2f67;
-}
-
-#spreeuw-color{
-  background-color: #008f06;
-}
-.circle{
+.circle {
   height: 15px;
   width: 15px;
   border-radius: 50%;
