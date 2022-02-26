@@ -1,22 +1,31 @@
 <template>
   <div class="legend">
     <div>
+      <div id="gierzwaluw-color" class="circle"></div>
       <input type="checkbox" value="Gierzwaluw" v-model="$store.state.birds.checkedBirds">
       <label>Gierzwaluwen</label>
     </div>
     <div>
+      <div id="boerzwaluw-color" class="circle"></div>
+
       <input type="checkbox" value="Boerenzwaluw" v-model="$store.state.birds.checkedBirds">
       <label>Boerenzwaluwen</label>
     </div>
     <div>
+      <div id="huiszwaluw-color" class="circle"></div>
+
       <input type="checkbox" value="Huiszwaluw" v-model="$store.state.birds.checkedBirds">
       <label>Huiszwaluwen</label>
     </div>
     <div>
+      <div id="huismus-color" class="circle"></div>
+
       <input type="checkbox" value="Huismus" v-model="$store.state.birds.checkedBirds">
       <label>Huismussen</label>
     </div>
     <div>
+      <div id="spreeuw-color" class="circle"></div>
+
       <input type="checkbox" value="Spreeuw" v-model="$store.state.birds.checkedBirds">
       <label>Spreeuwen</label>
     </div>
@@ -56,6 +65,31 @@ export default {
 }
 
 input {
-  margin-right: 5px;
+  margin: 0 5px;
+}
+#gierzwaluw-color{
+background-color: #43e2ce;
+}
+
+#boerzwaluw-color{
+  background: #0b379d;
+}
+
+#huiszwaluw-color{
+  background-color: #ff7b00;
+}
+
+#huismus-color{
+  background-color: #8f2f67;
+}
+
+#spreeuw-color{
+  background-color: #008f06;
+}
+.circle{
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  display: inline-block;
 }
 </style>
