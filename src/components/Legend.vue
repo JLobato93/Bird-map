@@ -14,7 +14,7 @@ import {mapActions, mapState} from "vuex";
 export default {
   name: "Legend",
   computed: {
-    ...mapState('birds', ['birds', 'birdsGeoSet', 'checkedBirds']),
+    ...mapState('birds', ['birds', 'birdsGeoSet']),
     ...mapState('map', ['map', 'mapLoaded'])
   },
   methods: {
@@ -27,11 +27,13 @@ export default {
       return checkedBirds
     },
     filteredBirds() {
-      let filteredBirds = {...this.birdsGeoSet}
-      filteredBirds.features = this.birdsGeoSet.features.filter(bird => {
-        return this.getCheckedBirds().includes(bird.properties.Vogel)
-      })
-      return filteredBirds
+      return {
+        type: 'FeatureCollection',
+        name: 'VOGELS',
+        features: this.birdsGeoSet.features.filter(bird => {
+          return this.getCheckedBirds().includes(bird.properties.Vogel)
+        })
+      }
     }
   },
   created() {

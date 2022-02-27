@@ -9,15 +9,7 @@ const state = {
         initBirds('Spreeuw', 'Spreeuwen', '#008f06'),
     ],
     birdsGeoSet: [],
-    filteredBirds: [],
-    totalBirds: 0,
-    checkedBirds: [
-
-        'Boerenzwaluw',
-        'Huiszwaluw',
-        'Huismus',
-        'Spreeuw'
-    ]
+    totalBirds: 0
 }
 
 const getters = {
@@ -36,7 +28,7 @@ const actions = {
                 return bird
             }
         })
-        commit('setBirds', data)
+        commit('setBirdGeoSet', data)
         commit('setBirdsCount', countBirds())
     },
     calculateTotalBirds({commit}) {
@@ -45,20 +37,17 @@ const actions = {
         state.birds.forEach(bird => {
             if (bird.checked) total += bird.count
         })
-
         commit('setTotalBirds', total)
     }
 }
 
 const mutations = {
-    setBirds: (state, birds) => (state.birdsGeoSet = birds),
+    setBirdGeoSet: (state, birds) => (state.birdsGeoSet = birds),
+    setTotalBirds: (state, count) => state.totalBirds = count,
     setBirdsCount: (state, birdTotals) => {
-        state.birds.forEach(bird => {
-            bird.count = birdTotals[bird.singularName]
-        })
+        state.birds.forEach(bird => bird.count = birdTotals[bird.singularName])
         state.totalBirds = birdTotals.totalBirds
-    },
-    setTotalBirds: (state, count) => state.totalBirds = count
+    }
 }
 
 let countBirds = () => {
@@ -71,9 +60,7 @@ let countBirds = () => {
 }
 
 function count(type) {
-    return state.birdsGeoSet.features.filter(bird => {
-        return bird.properties.Vogel === type
-    }).length
+    return state.birdsGeoSet.features.filter(bird => bird.properties.Vogel === type).length
 }
 
 function initBirds(singularName, pluralName, color) {
